@@ -1,4 +1,4 @@
-package com.bootcamp.bc_yahoo_finance.dto.reqDto;
+package com.bootcamp.bc_stock_web.dto.reqdto;
 
 import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -18,7 +18,8 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 public class YahooStockDTO {
-  private String symbol;
+  
+    private String symbol;
 
   @JsonFormat(pattern ="yyyy-MM-dd HH:mm:ss")
   @JsonSerialize(using = LocalDateTimeSerializer.class)
@@ -31,4 +32,5 @@ public class YahooStockDTO {
   private Double bidSize;
   private Double ask;
   private Double askSize;
+
 }

@@ -73,7 +73,7 @@ public class StockController implements StockOperation{
 
   @Override
   public String getSystemDate(String symbol) {
-    return systemDateService.getSystemData(symbol);
+    return systemDateService.getSystemDate(symbol);
   }
 
   @Override

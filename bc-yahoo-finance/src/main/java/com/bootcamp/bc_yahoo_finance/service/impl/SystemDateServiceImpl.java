@@ -26,7 +26,7 @@ public class SystemDateServiceImpl implements SystemDateService {
   private YahooStockRepository yahooStockRepository;
   
   @Override
-  public String getSystemData(String symbol) {
+  public String getSystemDate(String symbol) {
     try {
       String name = "SYSDATE-".concat(symbol);
        String systemdate = redisHelper.get(name , String.class);

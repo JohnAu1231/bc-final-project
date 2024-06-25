@@ -21,6 +21,7 @@ import com.bootcamp.bc_yahoo_finance.infra.TimeStampConverter;
 import com.bootcamp.bc_yahoo_finance.mapper.YahooStockEntityMapper;
 import com.bootcamp.bc_yahoo_finance.repository.YahooStockRepository;
 import com.bootcamp.bc_yahoo_finance.service.FiveMinListService;
+import com.bootcamp.bc_yahoo_finance.service.SystemDateService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,6 +38,9 @@ public class FiveMinListImpl implements FiveMinListService{
   @Autowired
   private YahooStockEntityMapper yahooStockEntityMapper;
 
+  @Autowired
+  private SystemDateService systemDateService;
+
   @Override
   public FiveMinListDTO getFiveMinData(String symbol) throws RedisBuildingException{
 log.info("-----------before try--------------");
@@ -46,8 +50,9 @@ log.info("-----------before try--------------");
       FiveMinListDTO fiveMinList = redisHelper.get(name, FiveMinListDTO.class);
       log.info("fiveMinList : "+fiveMinList);
 
-      if (fiveMinList == null) {
-
+      
+        // produce systemdate
+        systemDateService.getSystemDate(symbol);
         //construct the sysdate key
         String systemdateKey = "SYSDATE-".concat(symbol);
         // get the systemdate(yyyy-MM-dd) in Redis
@@ -57,6 +62,7 @@ log.info("-----------before try--------------");
         LocalDateTime localDateTime = localDate.atStartOfDay();
         Long date = localDateTime.toEpochSecond(ZoneOffset.UTC);
         Long dateMax = date + 86399;
+        log.info("----------time--------" + dateMax);
         // get the max regularMarketUnix
         Long maxRegularMarketUnix = yahooStockRepository.findMaxMarketTimeBySymbol(symbol).orElseThrow();
         // get the 5min data in the date in systemdate
@@ -67,9 +73,6 @@ log.info("-----------before try--------------");
         redisHelper.set("5MIN-".concat(symbol), fiveMinList, Duration.ofHours(12L));
         return fiveMinList;
 
-      } else {
-        return fiveMinList;
-      }
     } catch (JsonProcessingException e) {
       throw new RedisBuildingException("JsonProcessingException in getFiveMinData method");
     }

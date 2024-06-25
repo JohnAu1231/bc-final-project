@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <script src="https://code.highcharts.com/modules/stock.js"></script>
+  <script src="https://code.highcharts.com/modules/series-label.js"></script>
+  <script src="https://code.highcharts.com/modules/exporting.js"></script>
+  <script src="https://code.highcharts.com/modules/export-data.js"></script>
+  <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+  <script src="https://code.highcharts.com/stock/highstock.js"></script>
+  <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+  <script src="https://code.highcharts.com/stock/indicators/indicators.js"></script>
+  <script src="https://code.highcharts.com/stock/indicators/ema.js"></script>
+  <script src="https://code.highcharts.com/stock/indicators/sma.js"></script>
+  <script src="https://momentjs.com/downloads/moment.min.js"></script>
+  <script src="https://momentjs.com/downloads/moment-timezone-with-data.min.js"></script>
+</head>
+
+<div>
+  <label for="stockSymbol">Stock Symbol:</label>
+  <input type="text" id="stockSymbol" value="0388.HK">
+</div>
+
+<div>
+  <label for="smaPeriod">SMA Period (hours):</label>
+  <input type="number" id="smaPeriod" value="1" min="1">
+</div>
+<body>
+  <div id="stockChart" style="width: 500px; height: 600px;"></div>
+
+  <script type="text/javascript">
+    function updateChart() {
+      const stockSymbol = document.getElementById('stockSymbol').value;
+      const periodInHours = document.getElementById('smaPeriod').value;
+      const period = periodInHours * 12; 
+
+      fetch(`/five-minutes/${stockSymbol}`)
+        .then(response => response.json())
+        .then(data => {
+          const processedData = data.map(item => [new Date(item.timestamp).getTime(), item.price]);
+
+
+              Highcharts.stockChart('stockChart', {
+                rangeSelector: {
+                  selected: 1
+                },
+                title: {
+                  text: '5-Minute Stock Price'
+                },
+                time: {
+                  timezone: 'Asia/Hong_Kong'
+                },
+                xAxis: {
+                  type: 'datetime',
+                  labels: {
+                formatter: function () {
+                  return moment(this.value).tz('Asia/Hong_Kong').format('HH:mm');
+                }
+                  }
+                },
+                tooltip: {
+                  pointFormat: '<span style="color:{series.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/>Time: {point.x:%Y-%m-%d %H:%M:%S}',
+                  valueDecimals: 2
+                },
+                legend: {
+            enabled: true
+        },
+                plotOptions: {
+            series: {
+                showInLegend: true
+            }
+        },
+                series: [{
+                  id: 'price',
+                  name: 'Price',
+                  data: processedData,
+                  tooltip: {
+                    valueDecimals: 2
+                  }
+                },
+                 {
+                  type: 'sma',
+                  linkedTo: 'price',
+                  name: 'SMA (' + periodInHours + ' hours)',
+                  // zIndex: 1,
+            marker: {
+                enabled: false
+            },
+                  params: {
+                    period: parseInt(period, 10) 
+                  }
+                }
+              ]
+              });
+            })
+            
+        .catch(error => {
+          console.error('Error fetching five-minutes data:', error);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      updateChart();
+    });
+
+    document.getElementById('smaPeriod').addEventListener('input', function() {
+      updateChart();
+    });
+
+    document.getElementById('stockSymbol').addEventListener('input', function() {
+      updateChart();
+    });
+
+    setInterval(function() {
+      updateChart();
+    }, 10000);
+
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,9 @@
+server: 
+  port: 8099
+
+api:
+  json-place-holder:
+    domain: "localhost:8089"
+    endpoints:
+      stock: /five
+      hour: /hourMA

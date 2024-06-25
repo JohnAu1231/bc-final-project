@@ -54,7 +54,8 @@ public class ExYahooAPIMapper {
       LocalDateTime time = timestamp.toInstant().atZone(ZoneId.systemDefault())
           .toLocalDateTime();
       YahooStockDTO yahooStockDTO = YahooStockDTO.builder()
-          .marketPrice(stock.getMarketPrice()).marketTime(time)
+          .regularMarketPrice(stock.getMarketPrice()).marketTime(time)
+          .regularMarketUnix(stock.getRegularMarketTime())
           .ask(stock.getAsk()).askSize(stock.getAskSize()).bid(stock.getBid())
           .bidSize(stock.getBidSize()).symbol(stock.getSymbol())
           .regularMarketChangePercent(stock.getRegularMarketChangePercent())
