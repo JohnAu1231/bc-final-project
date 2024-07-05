@@ -257,141 +257,196 @@ function toggleCustomSMA() {
     
         // Function to add symbol to the chart
         async function addSymbol() {
+            const symbolRegex = /^\d{4}$/;
     const input = document.getElementById('stockSymbolInput');
     const symbolNumber = input.value.trim();
-    if (symbolNumber && !symbols.includes(`${symbolNumber}.HK`)) {
-        const symbol = `${symbolNumber}.HK`;
-        try {
-            const response = await fetch(`/history/${symbol}/1d`);
-            const data = await response.json();
-            if (data.code !== 0) {
-                alert('Symbol does not exist');
-                return;
-            }
+
+    if (!symbolRegex.test(symbolNumber)) {
+        alert('Symbol must be exactly four digits.');
+        return;
+    }
+
+    const symbol = `${symbolNumber}.HK`;
+
+    if (symbols.includes(symbol)) {
+        alert('Symbol already added.');
+        return;
+    }
+    console.log(symbol);
+    try {
+        const response = await fetch(`/history/${symbol}/1d`);
+        const data = await response.json();
+        console.log(data.code);
+        if (data.code !== 0) {
+            alert('Symbol does not exist');
+            return;
+        }
+            
+            // Push new symbol to symbols array
             symbols.push(symbol);
             symbolColors[symbol] = Highcharts.getOptions().colors[symbols.length % Highcharts.getOptions().colors.length];
             createBubble(symbol);
             input.value = '';
+            
+            // Refresh chart with updated symbols
             historyChart();
+            
+            // Toggle SMA for default period (e.g., 20-day SMA)
+            toggleSMA(symbol, '20');
+            
         } catch (error) {
             console.error('Error adding symbol:', error);
         }
+    } 
+    
+function createBubble(symbol) {
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.textContent = symbol;
+    bubble.style.backgroundColor = symbolColors[symbol];
+    bubble.onclick = () => {
+        removeSymbol(symbol);
+        bubble.remove();
+        historyChart();
+    };
+    document.getElementById('symbolBubbles').appendChild(bubble);
+}
+
+function removeSymbol(symbolToRemove) {
+    const index = symbols.indexOf(symbolToRemove);
+    console.log(symbols);
+    if (index > -1) {
+        symbols.splice(index, 1);
+
+        // Remove associated series from the chart
+        const chart = Highcharts.charts[0]; // Assuming there's only one chart
+        const ohlcSeries = chart.get(`${symbolToRemove}-ohlc`);
+        const volumeSeries = chart.get(`${symbolToRemove}-volume`);
+
+        if (ohlcSeries) {
+            ohlcSeries.remove();
+        }
+        if (volumeSeries) {
+            volumeSeries.remove();
+        }
+
+        // Remove symbol bubble from UI
+        const bubbleToRemove = document.querySelector(`.bubble[data-symbol="${symbolToRemove}"]`);
+        if (bubbleToRemove) {
+            bubbleToRemove.remove();
+        }
+
+        // Refresh chart with updated symbols list
+        historyChart();
     }
 }
-    
-        // Function to create symbol bubble
-        function createBubble(symbol) {
-            const bubble = document.createElement('div');
-            bubble.className = 'bubble';
-            bubble.textContent = symbol;
-            bubble.style.backgroundColor = symbolColors[symbol];
-            bubble.onclick = () => {
-                removeSymbol(symbol);
-                bubble.remove();
-                historyChart();
-            };
-            document.getElementById('symbolBubbles').appendChild(bubble);
-        }
-    
-        // Function to remove symbol
-        function removeSymbol(symbol) {
-            const index = symbols.indexOf(symbol);
-            if (index > -1) {
-                symbols.splice(index, 1);
-            }
-        }
-    
-// Function to fetch historical data and update chart
+ // Function to fetch historical data and update chart
 async function historyChart(interval = '1d') {
     try {
         const promises = symbols.map(symbol =>
-            fetch(`/history/${symbol}/${interval}`).then(response => response.json())
-            .then(data => data.data[0].data)
+            fetch(`/history/${symbol}/${interval}`)
+                .then(response => response.json())
+                .then(data => ({
+                    symbol: symbol,
+                    ohlc: data.data[0].data.map(item => [
+                        new Date(item.regularMarketUnix * 1000).getTime(),
+                        item.open,
+                        item.high,
+                        item.low,
+                        item.close
+                    ]),
+                    volume: data.data[0].data.map(item => [
+                        new Date(item.regularMarketUnix * 1000).getTime(),
+                        item.volume
+                    ])
+                }))
         );
-        const dataArray = await Promise.all(promises);
 
-        // Prepare data for Highcharts
-        const seriesData = dataArray.map(data => ({
-            ohlc: [],
-            volume: [],
-        }));
+        const dataResults = await Promise.all(promises);
 
-        dataArray.forEach((data, index) => {
-            const ohlc = seriesData[index].ohlc;
-            const volume = seriesData[index].volume;
-            data.forEach(item => {
-                ohlc.push([
-                    new Date(item.regularMarketUnix * 1000).getTime(),
-                    item.open,
-                    item.high,
-                    item.low,
-                    item.close
-                ]);
-                volume.push([
-                    new Date(item.regularMarketUnix * 1000).getTime(),
-                    item.volume
-                ]);
-            });
-        });
-
-        const chart = Highcharts.stockChart('container', {
-            rangeSelector: {
-                selected: 1
-            },
-            title: {
-                text: 'Stock Price History'
-            },
-            yAxis: [{
-                labels: {
-                    align: 'right',
-                    x: -3
-                },
-                title: {
-                    text: 'OHLC'
-                },
-                height: '60%',
-                lineWidth: 2
-            }, {
-                labels: {
-                    align: 'right',
-                    x: -3
-                },
-                title: {
-                    text: 'Volume'
-                },
-                top: '65%',
-                height: '35%',
-                offset: 0,
-                lineWidth: 2
-            }],
-            tooltip: {
-                split: true
-            },
-            series: symbols.map((symbol, index) => ({
+        // Prepare series data for Highcharts
+        const newSeries = dataResults.flatMap(result => [
+            {
                 type: 'candlestick',
-                name: symbol,
-                id: `${symbol}-ohlc`,
+                name: result.symbol,
+                id: `${result.symbol}-ohlc`,
                 zIndex: 2,
-                data: seriesData[index].ohlc,
-                color: symbolColors[symbol]
-            })).concat(symbols.map((symbol, index) => ({
+                data: result.ohlc,
+                color: symbolColors[result.symbol]
+            },
+            {
                 type: 'column',
-                name: `${symbol} Volume`,
-                id: `${symbol}-volume`,
-                data: seriesData[index].volume,
+                name: `${result.symbol} Volume`,
+                id: `${result.symbol}-volume`,
+                data: result.volume,
                 yAxis: 1,
-                color: symbolColors[symbol]
-            })))
-        });
+                color: symbolColors[result.symbol]
+            }
+        ]);
 
-        // Initialize with default SMA and update chart
-        toggleSMA('20'); // Initialize with 20-day SMA
+        // Update or add series to existing chart
+        if (Highcharts.charts.length > 0) {
+            const chart = Highcharts.charts[0]; // Assuming there's only one chart
 
-        // Show custom SMA input container
-        document.getElementById('customSMAContainer').style.display = 'flex';
+            // Check existing series and add new ones
+            newSeries.forEach(series => {
+                const existingSeries = chart.get(series.id);
+                if (existingSeries) {
+                    // Update existing series data
+                    existingSeries.setData(series.data);
+                } else {
+                    // Add new series to the chart
+                    chart.addSeries(series);
+                }
+            });
+        } else {
+            // Create new chart if it doesn't exist
+            Highcharts.stockChart('container', {
+                rangeSelector: {
+                    selected: 1
+                },
+                title: {
+                    text: 'Stock Price History'
+                },
+                yAxis: [{
+                    labels: {
+                        align: 'right',
+                        x: -3
+                    },
+                    title: {
+                        text: 'OHLC'
+                    },
+                    height: '60%',
+                    lineWidth: 2
+                }, {
+                    labels: {
+                        align: 'right',
+                        x: -3
+                    },
+                    title: {
+                        text: 'Volume'
+                    },
+                    top: '65%',
+                    height: '35%',
+                    offset: 0,
+                    lineWidth: 2
+                }],
+                tooltip: {
+                    split: true
+                },
+                series: newSeries
+            });
+        }
 
-        
-    // Add event listeners for SMA buttons
+        setUpSMAbutton();
+
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+function setUpSMAbutton() {
+         // Add event listeners for SMA buttons
     document.getElementById('sma10DaysButton').addEventListener('click', () => toggleSMA('10'));
     document.getElementById('sma20DaysButton').addEventListener('click', () => toggleSMA('20'));
     document.getElementById('sma50DaysButton').addEventListener('click', () => toggleSMA('50'));
@@ -407,18 +462,11 @@ async function historyChart(interval = '1d') {
             addSymbol();
         }
     });
-        
-
-        
-    } catch (error) {
-        console.error('Error fetching data:', error);
     }
-}
-    
+
 document.addEventListener('DOMContentLoaded', function () {
     // Initialize default symbol bubble and chart with daily interval
-    createBubble('0388.HK');
-    historyChart('1d');
+
 
     // Add event listeners for interval buttons
     document.getElementById('dailyButton').addEventListener('click', () => {
@@ -434,6 +482,12 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 });
+document.getElementById('symbolBubbles').innerHTML = '';
+
+symbols.forEach(symbol => {
+    createBubble(symbol);
+});
+    historyChart('1d');
     </script>
 </body>
 </html>
