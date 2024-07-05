@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Chart Dashboard</title>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/stock.js"></script>
+    <script src="https://code.highcharts.com/modules/series-label.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+    <script src="https://code.highcharts.com/stock/highstock.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/stock/indicators/indicators.js"></script>  
+    <script src="https://momentjs.com/downloads/moment.min.js"></script>
+    <script src="https://momentjs.com/downloads/moment-timezone-with-data.min.js"></script>
+    <style>
+        body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f5f5f5;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex-direction: column;
+  height: 100vh;
+}
+
+#container-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  width: 100%;
+  max-width: 2000px;
+  margin: 20px auto;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  overflow: hidden;
+  flex: 1;
+}
+
+#container {
+  flex: 1;
+  height: 100%;
+  min-width: 0;
+}
+
+ #control-panel {
+ flex: 0 0 200px;
+ background-color: #f8f9fa;
+  border-left: 1px solid #ccc;
+  padding: 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column; 
+  justify-content: flex-start;
+  align-items: stretch;
+}
+
+.sma-button {
+  padding: 8px 15px;
+  border: none;
+  background-color: #ffffff; 
+  color: #ffffff; 
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.sma-button.active {
+    background-color: #007bff;
+    color: #ffffff;
+}
+
+.sma-button:hover {
+    background-color: #e9ecef;
+    color: #007bff;
+}
+
+.input-container {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.input-container label {
+  margin-right: 10px;
+}
+
+.input-container input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  flex-grow: 1;
+  max-width: 100px;
+}
+
+.input-container button {
+  padding: 8px 15px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.input-container button.disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.input-container button:hover {
+  background-color: #0056b3;
+}
+
+.bubble {
+  display: inline-block;
+  padding: 10px;
+  margin: 5px;
+  color: white;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.bubble:hover {
+  opacity: 0.8;
+}
+    </style>
+</head>
+
+<body>
+    <div id="container-wrapper">
+        <div id="container"></div>
+        <div id="control-panel">
+            <div class="input-container">
+                <button id="sma10DaysButton" class="sma-button">10-day SMA</button>
+            </div>
+            <div class="input-container">
+                <button id="sma20DaysButton" class="sma-button">20-day SMA</button>
+            </div>
+            <div class="input-container">
+                <button id="sma50DaysButton" class="sma-button">50-day SMA</button>
+            </div>
+            <div class="input-container">
+                <button id="sma100DaysButton" class="sma-button">100-day SMA</button>
+            </div>
+            <div class="input-container">
+                <button id="sma200DaysButton" class="sma-button">200-day SMA</button>
+            </div>
+            <div class="input-container" id="customSMAContainer" style="display: none;">
+                <label for="customSMAInput">Custom SMA:</label>
+                <input type="number" id="customSMAInput" min="1" max="100">
+                <button id="customSMAButton">Apply</button>
+            </div>
+            <div class="input-container">
+                <button id="dailyButton" class="interval-button">Daily</button>
+            </div>
+            <div class="input-container">
+                <button id="weeklyButton" class="interval-button">Weekly</button>
+            </div>
+            <div class="input-container">
+                <button id="monthlyButton" class="interval-button">Monthly</button>
+            </div>
+        </div>
+    </div>
+    <div class="input-container" style="margin-top: 20px; margin-left: 20px;">
+        <input type="text" id="stockSymbolInput" placeholder="Enter stock symbol number">
+        <button id="addSymbolButton">Add Symbol</button>
+    </div>
+    
+    <div id="symbolBubbles" style="margin-left: 20px;"></div>
+    <script type="text/javascript">
+
+        //deafult symbol
+        const symbols = ['0388.HK']; 
+        const symbolColors = {
+            '0388.HK': '#007bff'
+        };
+
+         // Store references to the SMA series
+        let smaLines = {};
+    
+        // calculate SMA
+        function calculateSMA(data, period) {
+            const sma = [];
+            for (let i = 0; i < data.length; i++) {
+                if (i >= period - 1) {
+                    const sum = data.slice(i - period + 1, i + 1).reduce((acc, val) => acc + val[4], 0); // Assuming close price is at index 4
+                    sma.push([data[i][0], sum / period]);
+                }
+            }
+            return sma;
+        }
+
+// plot sma line
+function toggleSMA(period) {
+    symbols.forEach(symbol => {
+        const chart = Highcharts.charts[0]; // Assuming only one chart is present
+        const ohlcSeries = chart.get(`${symbol}-ohlc`);
+        const existingSMA = smaLines[`${symbol}-${period}`];
+
+        if (ohlcSeries) {
+            if (existingSMA) {
+                existingSMA.remove();
+                delete smaLines[`${symbol}-${period}`];
+                toggleActiveButton(`sma${period}DaysButton`, false); // Toggle button to inactive state
+            } else {
+                const smaData = calculateSMA(ohlcSeries.options.data, parseInt(period));
+                const smaSeries = chart.addSeries({
+                    type: 'sma',
+                            linkedTo: `${symbol}-ohlc`,
+                            name: `${period}-day SMA`,
+                            params: {
+                                period: parseInt(period)
+                            },
+                            zIndex: 3, // Ensure SMA series appear above price and volume series
+                            marker: {
+                                enabled: true
+                            }
+                        });
+
+                smaLines[`${symbol}-${period}`] = smaSeries;
+                toggleActiveButton(`sma${period}DaysButton`, true); // Toggle button to active state
+            }
+        }
+    });
+}
+
+// active button
+function toggleActiveButton(buttonId, active) {
+    const button = document.getElementById(buttonId);
+    if (button) {
+        if (active) {
+            button.style.backgroundColor = '#007bff'; 
+            button.style.color = '#fff'; 
+        } else {
+            button.style.backgroundColor = '#fff'; 
+            button.style.color = '#000'; 
+        }
+    }
+}
+
+// Function to apply custom SMA period
+function toggleCustomSMA() {
+    const customSMAInput = document.getElementById('customSMAInput');
+    const customPeriod = customSMAInput.value.trim();
+
+    if (customPeriod !== '' && !isNaN(customPeriod) && customPeriod >= 1) {
+        toggleSMA(customPeriod);
+        customSMAInput.value = ''; // Clear input after applying
+    } else {
+        alert('Please enter a valid number for Custom SMA period (minimum 1)');
+    }
+}
+    
+        // Function to add symbol to the chart
+        async function addSymbol() {
+    const input = document.getElementById('stockSymbolInput');
+    const symbolNumber = input.value.trim();
+    if (symbolNumber && !symbols.includes(`${symbolNumber}.HK`)) {
+        const symbol = `${symbolNumber}.HK`;
+        try {
+            const response = await fetch(`/history/${symbol}/1d`);
+            const data = await response.json();
+            if (data.code !== 0) {
+                alert('Symbol does not exist');
+                return;
+            }
+            symbols.push(symbol);
+            symbolColors[symbol] = Highcharts.getOptions().colors[symbols.length % Highcharts.getOptions().colors.length];
+            createBubble(symbol);
+            input.value = '';
+            historyChart();
+        } catch (error) {
+            console.error('Error adding symbol:', error);
+        }
+    }
+}
+    
+        // Function to create symbol bubble
+        function createBubble(symbol) {
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            bubble.textContent = symbol;
+            bubble.style.backgroundColor = symbolColors[symbol];
+            bubble.onclick = () => {
+                removeSymbol(symbol);
+                bubble.remove();
+                historyChart();
+            };
+            document.getElementById('symbolBubbles').appendChild(bubble);
+        }
+    
+        // Function to remove symbol
+        function removeSymbol(symbol) {
+            const index = symbols.indexOf(symbol);
+            if (index > -1) {
+                symbols.splice(index, 1);
+            }
+        }
+    
+// Function to fetch historical data and update chart
+async function historyChart(interval = '1d') {
+    try {
+        const promises = symbols.map(symbol =>
+            fetch(`/history/${symbol}/${interval}`).then(response => response.json())
+            .then(data => data.data[0].data)
+        );
+        const dataArray = await Promise.all(promises);
+
+        // Prepare data for Highcharts
+        const seriesData = dataArray.map(data => ({
+            ohlc: [],
+            volume: [],
+        }));
+
+        dataArray.forEach((data, index) => {
+            const ohlc = seriesData[index].ohlc;
+            const volume = seriesData[index].volume;
+            data.forEach(item => {
+                ohlc.push([
+                    new Date(item.regularMarketUnix * 1000).getTime(),
+                    item.open,
+                    item.high,
+                    item.low,
+                    item.close
+                ]);
+                volume.push([
+                    new Date(item.regularMarketUnix * 1000).getTime(),
+                    item.volume
+                ]);
+            });
+        });
+
+        const chart = Highcharts.stockChart('container', {
+            rangeSelector: {
+                selected: 1
+            },
+            title: {
+                text: 'Stock Price History'
+            },
+            yAxis: [{
+                labels: {
+                    align: 'right',
+                    x: -3
+                },
+                title: {
+                    text: 'OHLC'
+                },
+                height: '60%',
+                lineWidth: 2
+            }, {
+                labels: {
+                    align: 'right',
+                    x: -3
+                },
+                title: {
+                    text: 'Volume'
+                },
+                top: '65%',
+                height: '35%',
+                offset: 0,
+                lineWidth: 2
+            }],
+            tooltip: {
+                split: true
+            },
+            series: symbols.map((symbol, index) => ({
+                type: 'candlestick',
+                name: symbol,
+                id: `${symbol}-ohlc`,
+                zIndex: 2,
+                data: seriesData[index].ohlc,
+                color: symbolColors[symbol]
+            })).concat(symbols.map((symbol, index) => ({
+                type: 'column',
+                name: `${symbol} Volume`,
+                id: `${symbol}-volume`,
+                data: seriesData[index].volume,
+                yAxis: 1,
+                color: symbolColors[symbol]
+            })))
+        });
+
+        // Initialize with default SMA and update chart
+        toggleSMA('20'); // Initialize with 20-day SMA
+
+        // Show custom SMA input container
+        document.getElementById('customSMAContainer').style.display = 'flex';
+
+        
+    // Add event listeners for SMA buttons
+    document.getElementById('sma10DaysButton').addEventListener('click', () => toggleSMA('10'));
+    document.getElementById('sma20DaysButton').addEventListener('click', () => toggleSMA('20'));
+    document.getElementById('sma50DaysButton').addEventListener('click', () => toggleSMA('50'));
+    document.getElementById('sma100DaysButton').addEventListener('click', () => toggleSMA('100'));
+    document.getElementById('sma200DaysButton').addEventListener('click', () => toggleSMA('200'));
+    
+    // Add event listener for custom SMA button
+    document.getElementById('customSMAButton').addEventListener('click', toggleCustomSMA);
+
+    // Add event listener for Enter key in stock symbol input
+    document.getElementById('stockSymbolInput').addEventListener('keypress', function (event) {
+        if (event.key === 'Enter') {
+            addSymbol();
+        }
+    });
+        
+
+        
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+    
+document.addEventListener('DOMContentLoaded', function () {
+    // Initialize default symbol bubble and chart with daily interval
+    createBubble('0388.HK');
+    historyChart('1d');
+
+    // Add event listeners for interval buttons
+    document.getElementById('dailyButton').addEventListener('click', () => {
+        historyChart('1d');
+    });
+
+    document.getElementById('weeklyButton').addEventListener('click', () => {
+        historyChart('1wk');
+    });
+
+    document.getElementById('monthlyButton').addEventListener('click', () => {
+        historyChart('1mo');
+    });
+
+});
+    </script>
+</body>
+</html>
+    

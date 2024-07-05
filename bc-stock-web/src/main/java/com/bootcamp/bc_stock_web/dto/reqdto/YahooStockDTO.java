@@ -18,12 +18,11 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 public class YahooStockDTO {
-  
-    private String symbol;
+  private String symbol;
 
-  @JsonFormat(pattern ="yyyy-MM-dd HH:mm:ss")
+  @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
   @JsonSerialize(using = LocalDateTimeSerializer.class)
-  @JsonDeserialize(using= LocalDateTimeDeserializer.class)
+  @JsonDeserialize(using = LocalDateTimeDeserializer.class)
   private LocalDateTime marketTime;
   private Long regularMarketUnix;
   private Double regularMarketPrice;
@@ -32,5 +31,10 @@ public class YahooStockDTO {
   private Double bidSize;
   private Double ask;
   private Double askSize;
-
+  private Long volume;
+  private Double close;
+  private Double low;
+  private Double open;
+  private Double high;
 }
+

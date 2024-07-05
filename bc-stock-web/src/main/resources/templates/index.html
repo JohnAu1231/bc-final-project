@@ -2,121 +2,279 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-  <script src="https://code.highcharts.com/highcharts.js"></script>
-  <script src="https://code.highcharts.com/modules/stock.js"></script>
-  <script src="https://code.highcharts.com/modules/series-label.js"></script>
-  <script src="https://code.highcharts.com/modules/exporting.js"></script>
-  <script src="https://code.highcharts.com/modules/export-data.js"></script>
-  <script src="https://code.highcharts.com/modules/accessibility.js"></script>
-  <script src="https://code.highcharts.com/stock/highstock.js"></script>
-  <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
-  <script src="https://code.highcharts.com/stock/indicators/indicators.js"></script>
-  <script src="https://code.highcharts.com/stock/indicators/ema.js"></script>
-  <script src="https://code.highcharts.com/stock/indicators/sma.js"></script>
-  <script src="https://momentjs.com/downloads/moment.min.js"></script>
-  <script src="https://momentjs.com/downloads/moment-timezone-with-data.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Chart Dashboard</title>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/stock.js"></script>
+    <script src="https://code.highcharts.com/modules/series-label.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+    <script src="https://code.highcharts.com/stock/highstock.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/stock/indicators/indicators.js"></script>
+    <script src="https://code.highcharts.com/stock/indicators/ema.js"></script>
+    <script src="https://code.highcharts.com/stock/indicators/sma.js"></script>
+    <script src="https://momentjs.com/downloads/moment.min.js"></script>
+    <script src="https://momentjs.com/downloads/moment-timezone-with-data.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .bidAskContainer {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .bidBox,
+        .askBox {
+            padding: 10px;
+            border-radius: 5px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            width: 45%;
+            text-align: center;
+        }
+
+        .bidBox {
+            background-color: skyblue;
+        }
+
+        .askBox {
+            background-color: pink;
+        }
+
+        #stockChart {
+            width: 100%;
+            height: 500px;
+            margin-top: 20px;
+        }
+
+        @media only screen and (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .bidBox,
+            .askBox {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            #stockChart {
+                height: 400px;
+            }
+        }
+    </style>
 </head>
 
-<div>
-  <label for="stockSymbol">Stock Symbol:</label>
-  <input type="text" id="stockSymbol" value="0388.HK">
-</div>
-
-<div>
-  <label for="smaPeriod">SMA Period (hours):</label>
-  <input type="number" id="smaPeriod" value="1" min="1">
-</div>
 <body>
-  <div id="stockChart" style="width: 500px; height: 600px;"></div>
+    <div class="container">
+        <h2>Welcome to the Stock Chart Dashboard</h2>
+        <p>This dashboard provides real-time information about stock prices and SMA indicators.</p>
+        <p>Enter one or more stock symbols separated by commas and SMA period above to view the chart.</p>
+    </div>
 
-  <script type="text/javascript">
-    function updateChart() {
-      const stockSymbol = document.getElementById('stockSymbol').value;
-      const periodInHours = document.getElementById('smaPeriod').value;
-      const period = periodInHours * 12; 
+    <div>
+        <label for="stockSymbols">Stock Symbols (separated by commas):</label>
+        <input type="text" id="stockSymbols" value="0388.HK,0700.HK">
+    </div>
 
-      fetch(`/five-minutes/${stockSymbol}`)
-        .then(response => response.json())
-        .then(data => {
-          const processedData = data.map(item => [new Date(item.timestamp).getTime(), item.price]);
+    <div>
+        <label for="smaPeriod">SMA Period (hours):</label>
+        <input type="number" id="smaPeriod" value="1" min="1">
+    </div>
 
+    <div id="bidAskContainer"></div>
 
-              Highcharts.stockChart('stockChart', {
-                rangeSelector: {
-                  selected: 1
-                },
-                title: {
-                  text: '5-Minute Stock Price'
-                },
-                time: {
-                  timezone: 'Asia/Hong_Kong'
-                },
-                xAxis: {
-                  type: 'datetime',
-                  labels: {
-                formatter: function () {
-                  return moment(this.value).tz('Asia/Hong_Kong').format('HH:mm');
+    <div id="stockChart"></div>
+
+    <script type="text/javascript">
+        function fillMissingData(data) {
+            // Ensure data is sorted by timestamp (if not already)
+            data.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+            // Create a new array to store filled data
+            let filledData = [];
+
+            // Track timestamps to filter duplicates
+            let timestampSet = new Set();
+
+            // Iterate through data points
+            for (let i = 0; i < data.length; i++) {
+                let currentItem = data[i];
+                let currentTimestamp = new Date(currentItem.timestamp);
+
+                // Check if timestamp already exists in set (duplicate)
+                if (!timestampSet.has(currentTimestamp.getTime())) {
+                    filledData.push(currentItem);
+                    timestampSet.add(currentTimestamp.getTime());
                 }
-                  }
-                },
-                tooltip: {
-                  pointFormat: '<span style="color:{series.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/>Time: {point.x:%Y-%m-%d %H:%M:%S}',
-                  valueDecimals: 2
-                },
-                legend: {
-            enabled: true
-        },
-                plotOptions: {
-            series: {
-                showInLegend: true
             }
-        },
-                series: [{
-                  id: 'price',
-                  name: 'Price',
-                  data: processedData,
-                  tooltip: {
-                    valueDecimals: 2
-                  }
-                },
-                 {
-                  type: 'sma',
-                  linkedTo: 'price',
-                  name: 'SMA (' + periodInHours + ' hours)',
-                  // zIndex: 1,
-            marker: {
-                enabled: false
-            },
-                  params: {
-                    period: parseInt(period, 10) 
-                  }
-                }
-              ]
-              });
-            })
-            
-        .catch(error => {
-          console.error('Error fetching five-minutes data:', error);
+
+            return filledData;
+        }
+
+        function updateChart() {
+            const stockSymbols = document.getElementById('stockSymbols').value.split(',').map(symbol => symbol.trim());
+            const periodInHours = document.getElementById('smaPeriod').value;
+            const period = periodInHours * 12;
+
+            // Clear the existing bid/ask containers
+            const bidAskContainer = document.getElementById('bidAskContainer');
+            bidAskContainer.innerHTML = '';
+
+            Promise.all(stockSymbols.map(symbol =>
+                Promise.all([
+                    fetch(`/five-minutes/${symbol}`).then(response => response.json()),
+                    fetch(`/five-minutes-list/${symbol}`).then(response => response.json())
+                ]).then(([mainData, bidAskData]) => ({
+                    symbol,
+                    mainData: fillMissingData(mainData), // Fill missing data points and filter duplicates
+                    bidAskData
+                }))
+            ))
+                .then(data => {
+                    const seriesData = [];
+                    let yAxisIndex = 0;
+
+                    data.forEach(({ symbol, mainData, bidAskData }) => {
+                        const latestBidAsk = bidAskData[bidAskData.length - 1];
+                        const bid = latestBidAsk.bid;
+                        const ask = latestBidAsk.ask;
+
+                        // Create bid and ask boxes for each stock
+                        const stockBidAskContainer = document.createElement('div');
+                        stockBidAskContainer.className = 'bidAskContainer';
+
+                        const bidBox = document.createElement('div');
+                        bidBox.className = 'bidBox';
+                        bidBox.id = `bidBox_${symbol}`;
+                        bidBox.textContent = `${symbol} Bid: ${bid.toFixed(2)}`;
+
+                        const askBox = document.createElement('div');
+                        askBox.className = 'askBox';
+                        askBox.id = `askBox_${symbol}`;
+                        askBox.textContent = `${symbol} Ask: ${ask.toFixed(2)}`;
+
+                        stockBidAskContainer.appendChild(bidBox);
+                        stockBidAskContainer.appendChild(askBox);
+                        bidAskContainer.appendChild(stockBidAskContainer);
+
+                        seriesData.push({
+                            id: `price_${symbol}`,
+                            name: `${symbol} Price`,
+                            data: mainData.map(item => [new Date(item.timestamp).getTime(), item.price]),
+                            tooltip: {
+                                valueDecimals: 2
+                            },
+                            yAxis: yAxisIndex, // Assigning yAxis index for each series
+                            zIndex: 1 // Ensure price series appear below SMA series
+                        });
+
+                        seriesData.push({
+                            type: 'sma',
+                            linkedTo: `price_${symbol}`,
+                            name: `SMA (${symbol}, ${periodInHours} hours)`,
+                            yAxis: yAxisIndex, // Use the same yAxis index for corresponding SMA series
+                            zIndex: 2, // Ensure SMA series appear above price series
+                            marker: {
+                                enabled: false
+                            },
+                            params: {
+                                period: parseInt(period, 10)
+                            }
+                        });
+
+                        yAxisIndex++; // Incrementing yAxis index for the next symbol
+                    });
+
+                    Highcharts.stockChart('stockChart', {
+                        rangeSelector: {
+                            selected: 1
+                        },
+                        title: {
+                            text: '5-Minute Stock Prices'
+                        },
+                        time: {
+                            timezone: 'Asia/Hong_Kong'
+                        },
+                        xAxis: {
+                            type: 'datetime',
+                            labels: {
+                                formatter: function () {
+                                    return moment(this.value).tz('Asia/Hong_Kong').format('HH:mm');
+                                }
+                            }
+                        },
+                        yAxis: [{
+                            labels: {
+                                format: '{value}'
+                            },
+                            title: {
+                                text: 'Price'
+                            }
+                        }, {
+                            labels: {
+                                format: '{value}'
+                            },
+                            title: {
+                                text: 'SMA'
+                            },
+                            opposite: false // Ensure the second y-axis is on the left
+                        }],
+                        tooltip: {
+                            pointFormat: '<span style="color:{series.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/>Time: {point.x:%Y-%m-%d %H:%M:%S}',
+                            valueDecimals: 2
+                        },
+                        legend: {
+                            enabled: true
+                        },
+                        plotOptions: {
+                            series: {
+                                showInLegend: true
+                            }
+                        },
+                        series: seriesData
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            updateChart();
         });
-    }
 
-    document.addEventListener('DOMContentLoaded', function() {
-      updateChart();
-    });
+        document.getElementById('smaPeriod').addEventListener('input', function () {
+            updateChart();
+        });
 
-    document.getElementById('smaPeriod').addEventListener('input', function() {
-      updateChart();
-    });
+        document.getElementById('stockSymbols').addEventListener('input', function () {
+            updateChart();
+        });
 
-    document.getElementById('stockSymbol').addEventListener('input', function() {
-      updateChart();
-    });
-
-    setInterval(function() {
-      updateChart();
-    }, 10000);
-
-  </script>
+        setInterval(function () {
+            updateChart();
+        }, 10000);
+    </script>
 </body>
 
 </html>
