@@ -63,6 +63,7 @@ log.info("-----------before try--------------");
         Long date = localDateTime.toEpochSecond(ZoneOffset.UTC);
         Long dateMax = date + 86399;
         log.info("----------time--------" + dateMax);
+        
         // get the max regularMarketUnix
         Long maxRegularMarketUnix = yahooStockRepository.findMaxMarketTimeBySymbol(symbol).orElseThrow();
         // get the 5min data in the date in systemdate

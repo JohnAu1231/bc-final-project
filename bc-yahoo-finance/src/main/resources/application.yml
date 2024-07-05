@@ -6,6 +6,7 @@ api:
     domain: "query1.finance.yahoo.com"
     endpoints:
       stock: /v7/finance/quote
+      history: /v8/finance/chart/
 
 header: GUC=AQEBCAFmWtZmgUIe4ARF&s=AQAAAM4aGNw0&g=ZlmPxA; A1=d=AQABBMceTGYCECJRyWllD8kCmW-X-rGJSo8FEgEBCAHWWmaBZtxW0iMA_eMBAAcIxx5MZrGJSo8&S=AQAAAvZsSFgIe89pReLRO_owrdY; A3=d=AQABBMceTGYCECJRyWllD8kCmW-X-rGJSo8FEgEBCAHWWmaBZtxW0iMA_eMBAAcIxx5MZrGJSo8&S=AQAAAvZsSFgIe89pReLRO_owrdY; gpp=DBAA; gpp_sid=-1; A1S=d=AQABBMceTGYCECJRyWllD8kCmW-X-rGJSo8FEgEBCAHWWmaBZtxW0iMA_eMBAAcIxx5MZrGJSo8&S=AQAAAvZsSFgIe89pReLRO_owrdY; cmp=t=1718247962&j=0&u=1---; thamba=1; PRF=t%3D0388.HK%252B0005.HK%252BHSBC
 

@@ -90,6 +90,7 @@ public class YahooStockServiceImpl implements YahooStockService {
   public void saveYahooAPI(String symbol) {
     ExYahooAPI stock = this.getYahooStockBySymbol(symbol);
     YahooStockEntity stockEntity = exYahooAPIMapper.mapToYahooFinanceEntity(stock);
+    stockEntity.setDataType("day");
     log.debug(stockEntity.getRegularMarketUnix().toString());
     yahooStockRepository.save(stockEntity);
   }

@@ -63,4 +63,26 @@ public class ExYahooAPIMapper {
       return yahooStockDTO;
     }
   }
+
+  public YahooStockEntity mapToYahooStockEntity(ExYahooAPI exYahooAPI) {
+    if (exYahooAPI == null)
+      return null;
+    if (exYahooAPI.getQuoteResponse() == null)
+      return null;
+    List<ExYahooStock> ls = exYahooAPI.getQuoteResponse().getResult();
+    if (ls == null) {
+      return null;
+    } else {
+      ExYahooStock stock = ls.get(0);
+ 
+      YahooStockEntity yahooStockEntity = YahooStockEntity.builder()
+          .regularMarketUnix(stock.getRegularMarketTime())
+          .ask(stock.getAsk()).askSize(stock.getAskSize()).bid(stock.getBid())
+          .bidSize(stock.getBidSize()).symbol(stock.getSymbol())
+          .regularMarketChangePercent(stock.getRegularMarketChangePercent())
+          .dataType("history")
+          .build();
+      return yahooStockEntity;
+    }
+  }
 }
