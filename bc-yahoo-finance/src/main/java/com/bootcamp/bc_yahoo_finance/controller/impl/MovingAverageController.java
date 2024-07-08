@@ -18,4 +18,8 @@ public class MovingAverageController implements MovingAverageOperation{
   public List<YahooStockDTO> getHourMovingAvergae(String symbol) {
     return movingAverageService.getMovingAverageNearlyHour(symbol);
   }
+
+  public List<MovingAverageDTO> getHourMovingAvergaeByDay(String symbol, int period) {
+    return movingAverageService.getMovingAverageByDay(symbol, period);
+  }
 }

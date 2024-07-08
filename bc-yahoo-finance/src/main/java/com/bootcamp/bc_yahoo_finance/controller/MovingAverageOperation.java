@@ -13,4 +13,8 @@ public interface MovingAverageOperation {
   
   @GetMapping(value = "/hourMA/{symbol}")
    List<YahooStockDTO> getHourMovingAvergae(@PathVariable String symbol);
+
+   
+  @GetMapping(value = "/dayMA/{symbol}/{period}")
+  List<MovingAverageDTO> getHourMovingAvergaeByDay(@PathVariable String symbol, @PathVariable int period);
 }

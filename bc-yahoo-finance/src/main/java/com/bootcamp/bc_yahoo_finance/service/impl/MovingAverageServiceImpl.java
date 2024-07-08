@@ -46,16 +46,74 @@ public class MovingAverageServiceImpl implements MovingAverageService {
           break;
         }
       }
-        BigDecimal average =
-            sum.divide(BigDecimal.valueOf(count), 2, RoundingMode.HALF_UP);
-        Timestamp timestamp = new Timestamp(
-            entityList.get(i).getRegularMarketUnix().longValue() * 1000L);
-        LocalDateTime time = timestamp.toInstant()
-            .atZone(ZoneId.systemDefault()).toLocalDateTime();
-        yahooStockDTOs.add(YahooStockDTO.builder().marketTime(time)
-            .regularMarketPrice(average.doubleValue()).build());
-      
+      BigDecimal average =
+          sum.divide(BigDecimal.valueOf(count), 2, RoundingMode.HALF_UP);
+      Timestamp timestamp = new Timestamp(
+          entityList.get(i).getRegularMarketUnix().longValue() * 1000L);
+      LocalDateTime time = timestamp.toInstant().atZone(ZoneId.systemDefault())
+          .toLocalDateTime();
+      yahooStockDTOs.add(YahooStockDTO.builder().marketTime(time)
+          .regularMarketPrice(average.doubleValue()).build());
+
     }
     return yahooStockDTOs;
   }
+
+
+  public List<MovingAverageDTO> getMovingAverageByDay(String symbol,
+      int period) {
+
+    List<YahooStockEntity> entityList = yahooStockRepository
+        .findAllStockBySymbolAndDataType(symbol, "history1d").get();
+
+    if (entityList == null || entityList.isEmpty()) {
+      return null;
+    }
+
+    List<MovingAverageDTO> movingAverageDTOs = new ArrayList<>();
+    for (int i = 0; i < entityList.size(); i++) {
+      double price = 0;
+      if (entityList.get(i).getClose() != null) {
+        price = entityList.get(i).getClose();
+      }
+      BigDecimal sum = BigDecimal.valueOf(price);
+      int count = 1;
+      Long time = entityList.get(i).getRegularMarketUnix();
+      if (i < period - 1) {
+        for (int j = 1; j <= i; j++) {
+          if ( i - j < 0) {
+            break;
+          }
+          if (entityList.get(i - j).getClose() != null) {
+            price = entityList.get(i - j).getClose();
+          }
+
+          sum = sum.add(BigDecimal.valueOf(price));
+          count++;
+        }
+        BigDecimal average =
+            sum.divide(BigDecimal.valueOf(count), 4, RoundingMode.HALF_UP);
+        movingAverageDTOs.add(MovingAverageDTO.builder().timestamp(time)
+            .regularMarketPrice(average.doubleValue()).build());
+      } else {
+      for (int j = 0; j < period; j++) {
+        if (i - j <= 0) {
+          break;
+        }
+        if (entityList.get(i - j).getClose() != null) {
+          price = entityList.get(i - j).getClose();
+        }
+        sum = sum.add(BigDecimal.valueOf(price));
+        count++;
+      }
+      BigDecimal average =
+          sum.divide(BigDecimal.valueOf(count), 4, RoundingMode.HALF_UP);
+      movingAverageDTOs.add(MovingAverageDTO.builder().timestamp(time)
+          .regularMarketPrice(average.doubleValue()).build());
+    }
+    }
+    return movingAverageDTOs;
+  }
+
+
 }

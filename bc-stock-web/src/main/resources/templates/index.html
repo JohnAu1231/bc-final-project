@@ -90,7 +90,10 @@
         <p>This dashboard provides real-time information about stock prices and SMA indicators.</p>
         <p>Enter one or more stock symbols separated by commas and SMA period above to view the chart.</p>
     </div>
-
+    <div>
+        <label for="history">Go to Stock History Data</label>
+        <button type="button" onclick="goToHistoricalPage()">Go to Historical Page</button>
+    </div>
     <div>
         <label for="stockSymbols">Stock Symbols (separated by commas):</label>
         <input type="text" id="stockSymbols" value="0388.HK,0700.HK">
@@ -274,6 +277,11 @@
         setInterval(function () {
             updateChart();
         }, 10000);
+
+        // Redirect to the historical page
+        function goToHistoricalPage() {
+            window.location.href = '/historical';
+        }
     </script>
 </body>
 

@@ -39,4 +39,24 @@ public class MovingAverageServiceImpl implements MovingAverageService{
         restTemplate.getForObject(url, YahooStockDTO[].class);
     return Arrays.asList(response);
   }
+
+  @Override
+  public List<YahooStockDTO> getDayAveragePoint(String symbol, String period) {
+    
+      int number = Integer.parseInt(period);
+      
+    String url = UriComponentsBuilder.newInstance().scheme(Scheme.HTTP.lowercase())
+        .host(this.domain).path(endpoint)
+        .path("/")
+        .path(symbol)
+        .path("/")
+        .path(period).build(false).toUriString();
+
+    log.info("url : " + url);
+
+
+    YahooStockDTO[] response =
+        restTemplate.getForObject(url, YahooStockDTO[].class);
+    return Arrays.asList(response);
+  }
 }

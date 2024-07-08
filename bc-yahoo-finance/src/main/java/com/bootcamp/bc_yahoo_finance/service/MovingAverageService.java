@@ -7,4 +7,6 @@ import com.bootcamp.bc_yahoo_finance.dto.reqDto.YahooStockDTO;
 public interface MovingAverageService {
   
   List<YahooStockDTO> getMovingAverageNearlyHour(String symbol);
+
+  List<MovingAverageDTO> getMovingAverageByDay(String symbol, int period);
 }

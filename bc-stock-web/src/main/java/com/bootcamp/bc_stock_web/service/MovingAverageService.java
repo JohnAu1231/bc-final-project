@@ -7,4 +7,6 @@ public interface MovingAverageService {
   
   List<YahooStockDTO> getHourAveragePoint(String symbol);
 
+  List<YahooStockDTO> getDayAveragePoint(String symbol, String period);
+
 }

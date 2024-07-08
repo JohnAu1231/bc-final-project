@@ -23,5 +23,13 @@ public class MovingAverageController implements MovingAverageOperation{
     return movingAverageService.getHourAveragePoint(symbol).stream()
     .map(e -> yahooStockDTOMapper.mapToStockPrice(e)).collect(Collectors.toList());
   }
-  
+
+  public List<StockPrice> getDayMovingAverage(String symbol,String period) {
+    return movingAverageService.getHourAveragePoint(symbol).stream()
+    .map(e -> yahooStockDTOMapper.mapToStockPrice(e)).collect(Collectors.toList());
+  }
+
+
+
+
 }
