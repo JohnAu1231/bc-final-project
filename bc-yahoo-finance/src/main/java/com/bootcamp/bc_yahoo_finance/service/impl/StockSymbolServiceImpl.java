@@ -2,7 +2,6 @@ package com.bootcamp.bc_yahoo_finance.service.impl;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,9 +11,8 @@ import com.bootcamp.bc_yahoo_finance.entity.StockSymbolEntity;
 import com.bootcamp.bc_yahoo_finance.infra.RedisHelper;
 import com.bootcamp.bc_yahoo_finance.mapper.YahooSymbolMapper;
 import com.bootcamp.bc_yahoo_finance.repository.StockSymbolRepository;
-import com.bootcamp.bc_yahoo_finance.service.YahooStockService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.bootcamp.bc_yahoo_finance.service.StockSymbolService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 @Service
 public class StockSymbolServiceImpl implements StockSymbolService {
@@ -60,6 +58,4 @@ public class StockSymbolServiceImpl implements StockSymbolService {
 
 
 
-  // https://query1.finance.yahoo.com/v7/finance/quote?symbols=0388.HK&crumb=jqeO9dKNl8U
-  // https://finance.yahoo.com/v7/finance/quote?symbol=0388.HK&crumb=
 }

@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.resource.NoResourceFoundException;
 import com.bootcamp.bc_yahoo_finance.exception.RedisBuildingException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 

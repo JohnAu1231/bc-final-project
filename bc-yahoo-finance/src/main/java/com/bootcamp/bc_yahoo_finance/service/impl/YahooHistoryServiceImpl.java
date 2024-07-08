@@ -3,7 +3,6 @@ package com.bootcamp.bc_yahoo_finance.service.impl;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
@@ -26,8 +25,6 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import com.bootcamp.bc_yahoo_finance.dto.respDto.ExYahooAPI;
 import com.bootcamp.bc_yahoo_finance.dto.respDto.ExYahooHistory;
-import com.bootcamp.bc_yahoo_finance.dto.respDto.ExYahooHistory.YahooChart.YahooResult;
-import com.bootcamp.bc_yahoo_finance.dto.respDto.ExYahooAPI.QuoteResponse.ExYahooStock;
 import com.bootcamp.bc_yahoo_finance.entity.YahooStockEntity;
 import com.bootcamp.bc_yahoo_finance.exception.RedisBuildingException;
 import com.bootcamp.bc_yahoo_finance.exception.StockDataNotAvailableException;
@@ -37,11 +34,9 @@ import com.bootcamp.bc_yahoo_finance.infra.ErrorCode;
 import com.bootcamp.bc_yahoo_finance.infra.RedisHelper;
 import com.bootcamp.bc_yahoo_finance.infra.Scheme;
 import com.bootcamp.bc_yahoo_finance.infra.SysCode;
-import com.bootcamp.bc_yahoo_finance.infra.ApiResp.ApiRespBuilder;
 import com.bootcamp.bc_yahoo_finance.mapper.ExYahooAPIMapper;
 import com.bootcamp.bc_yahoo_finance.mapper.YahooStockHistoryMapper;
 import com.bootcamp.bc_yahoo_finance.repository.YahooStockRepository;
-import com.bootcamp.bc_yahoo_finance.service.StockSymbolService;
 import com.bootcamp.bc_yahoo_finance.service.YahooHistoryService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
@@ -226,14 +221,8 @@ public class YahooHistoryServiceImpl implements YahooHistoryService {
     Optional<Long> maxMarketTime =
         yahooStockRepository.findMaxMarketTimeBySymbolAndDataType(symbol,
             "history".concat(interval));
-    // get nowTime
-    LocalDate today = LocalDate.now();
-    LocalDateTime todayMidnight = today.atStartOfDay();
-    long nowTime = todayMidnight.toInstant(ZoneOffset.UTC).getEpochSecond();
 
     // main logic
-    ExYahooHistory exYahooHistory = null;
-
     if (maxMarketTime.isPresent()) {
       //check any data between last time and now
       ApiResp<YahooStockEntity> response = saveFromYahooAPI(symbol, interval, String.valueOf(maxMarketTime.get()));

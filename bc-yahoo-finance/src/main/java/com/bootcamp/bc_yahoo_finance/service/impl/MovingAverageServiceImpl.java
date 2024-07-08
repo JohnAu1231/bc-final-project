@@ -1,20 +1,17 @@
 package com.bootcamp.bc_yahoo_finance.service.impl;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.bootcamp.bc_yahoo_finance.dto.reqDto.MovingAverageDTO;
 import com.bootcamp.bc_yahoo_finance.dto.reqDto.YahooStockDTO;
 import com.bootcamp.bc_yahoo_finance.entity.YahooStockEntity;
-import com.bootcamp.bc_yahoo_finance.infra.LocalDateTimeConverter;
 import com.bootcamp.bc_yahoo_finance.repository.YahooStockRepository;
 import com.bootcamp.bc_yahoo_finance.service.MovingAverageService;
 

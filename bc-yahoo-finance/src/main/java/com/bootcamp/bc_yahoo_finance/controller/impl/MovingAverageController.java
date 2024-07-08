@@ -1,6 +1,5 @@
 package com.bootcamp.bc_yahoo_finance.controller.impl;
 
-import java.sql.Timestamp;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;

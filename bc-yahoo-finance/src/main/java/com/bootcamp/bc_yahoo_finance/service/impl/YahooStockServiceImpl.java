@@ -1,14 +1,7 @@
 package com.bootcamp.bc_yahoo_finance.service.impl;
 
-import java.net.URI;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -19,17 +12,12 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import com.bootcamp.bc_yahoo_finance.dto.respDto.ExYahooAPI;
-import com.bootcamp.bc_yahoo_finance.dto.respDto.ExYahooFinanceNow;
-import com.bootcamp.bc_yahoo_finance.entity.StockRedisEntity;
 import com.bootcamp.bc_yahoo_finance.entity.YahooStockEntity;
 import com.bootcamp.bc_yahoo_finance.infra.CrumbManager;
 import com.bootcamp.bc_yahoo_finance.infra.Scheme;
 import com.bootcamp.bc_yahoo_finance.mapper.ExYahooAPIMapper;
-import com.bootcamp.bc_yahoo_finance.model.StockList;
 import com.bootcamp.bc_yahoo_finance.repository.YahooStockRepository;
-import com.bootcamp.bc_yahoo_finance.service.StockSymbolService;
 import com.bootcamp.bc_yahoo_finance.service.YahooStockService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -50,9 +38,6 @@ public class YahooStockServiceImpl implements YahooStockService {
 
   @Autowired
   private YahooStockRepository yahooStockRepository;
-
-  @Autowired
-  private StockSymbolService stockSymbolService;
 
   @Autowired
   private ExYahooAPIMapper exYahooAPIMapper;
@@ -94,12 +79,5 @@ public class YahooStockServiceImpl implements YahooStockService {
     log.debug(stockEntity.getRegularMarketUnix().toString());
     yahooStockRepository.save(stockEntity);
   }
-
-
-
-//   @Override
-//   public void saveYahooAPIFromStockList(StockList stockList) {
-//     stockList.
-//   }
 
 }

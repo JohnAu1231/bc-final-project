@@ -1,8 +1,6 @@
 package com.bootcamp.bc_yahoo_finance.infra;
 
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.List;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializer;
@@ -25,14 +23,6 @@ public class RedisHelper {
     this.redisTemplate = redisTemplate;
     this.objectMapper = objectMapper;
   }
-  // Encapsulate ResTemplate.class
-  // 1. Generics <String, String>
-  // 2. remove OpsForValue() -> set(), get()
-  // 3. remove Initialize the object states (serializer)
-
-
-  // get the string from redis
-  // convert the string to object, and return
 
   //throw a independent exception is better, easy to find where error
   public <T> T get(String key, Class<T> clazz) throws JsonProcessingException {
@@ -52,6 +42,4 @@ public class RedisHelper {
     this.redisTemplate.opsForValue().set(key, json, duration);
   }
 
-  // RedisHelper redisHelper = new RedisHelper();
-  // redisHelper.set
 }

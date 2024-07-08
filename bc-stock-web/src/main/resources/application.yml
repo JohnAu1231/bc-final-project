@@ -8,3 +8,13 @@ api:
       stock: /five
       hour: /hourMA
       history: /history
+
+spring:
+  application:
+    name: bc-stock-web
+    
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html

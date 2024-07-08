@@ -174,13 +174,16 @@
                 <button id="sma200DaysButton" class="sma-button" onclick="activeSMA('200');">200-day SMA</button>
             </div>
             <div class="input-container">
-                <button id="dailyButton" class="interval-button">Daily</button>
+                <button id="dailyButton" class="interval-button" onclick="historyChart('1d');
+                updateIntervalState('1d');">Daily</button>
             </div>
             <div class="input-container">
-                <button id="weeklyButton" class="interval-button">Weekly</button>
+                <button id="weeklyButton" class="interval-button" onclick="historyChart('1wk');
+                updateIntervalState('1wk');">Weekly</button>
             </div>
             <div class="input-container">
-                <button id="monthlyButton" class="interval-button">Monthly</button>
+                <button id="monthlyButton" class="interval-button" onclick="historyChart('1mo');
+                updateIntervalState('1mo');">Monthly</button>
             </div>
 
             <div class="index-button">
@@ -291,7 +294,7 @@ function toggleSMA(period) {
             // If SMA series exists, remove it and update smaState
             existingSMA.remove();
             delete smaLines[`${symbol}-${period}`];
-            smaState[period] = false; // Set SMA state to false (inactive)
+            // Set SMA state to false (inactive)
         } 
 
                 const smaSeries = chart.addSeries({
@@ -571,25 +574,7 @@ function updateIntervalState(interval) {
     updateIntervalButtonColors();
 }
 
-// daily, weekly, monthly data listener
-document.addEventListener('DOMContentLoaded', function () {
 
-    document.getElementById('dailyButton').addEventListener('click', () => {
-        historyChart('1d');
-        updateIntervalState('1d');
-    });
-
-    document.getElementById('weeklyButton').addEventListener('click', () => {
-        historyChart('1wk');
-        updateIntervalState('1wk');
-    });
-
-    document.getElementById('monthlyButton').addEventListener('click', () => {
-        historyChart('1mo');
-        updateIntervalState('1mo');
-    });
-
-});
 
 
 document.getElementById('symbolBubbles').innerHTML = '';

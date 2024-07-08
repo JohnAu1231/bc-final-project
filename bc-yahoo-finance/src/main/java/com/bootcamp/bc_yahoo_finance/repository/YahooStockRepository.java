@@ -2,12 +2,10 @@ package com.bootcamp.bc_yahoo_finance.repository;
 
 import java.util.List;
 import java.util.Optional;
-import org.antlr.v4.runtime.atn.SemanticContext.AND;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import com.bootcamp.bc_yahoo_finance.dto.reqDto.YahooStockDTO;
 import com.bootcamp.bc_yahoo_finance.entity.YahooStockEntity;
 import com.bootcamp.bc_yahoo_finance.entity.YahooStockEntityPK;
 
@@ -36,7 +34,7 @@ Optional<List<YahooStockEntity>> findAllStockBySymbol(@Param("symbol") String sy
 @Query(value = "SELECT * FROM TSTOCK_QUOTE_YAHOO WHERE market_time > :marketTime AND symbol = :symbol", nativeQuery = true)
 Optional<List<YahooStockEntity>> findAllStockBySymbolAfterMarketTime(@Param("symbol") String symbol, @Param("marketTime") Long marketTime);
 
-@Query(value = "SELECT * FROM TSTOCK_QUOTE_YAHOO WHERE symbol = :symbol AND data_type = :dataType", nativeQuery = true)
+@Query(value = "SELECT * FROM TSTOCK_QUOTE_YAHOO WHERE symbol = :symbol AND data_type = :dataType AND close IS NOT NULL ORDER BY market_time ASC", nativeQuery = true)
 Optional<List<YahooStockEntity>> findAllStockBySymbolAndDataType(@Param("symbol") String symbol, @Param("dataType") String dataType); 
 
 }

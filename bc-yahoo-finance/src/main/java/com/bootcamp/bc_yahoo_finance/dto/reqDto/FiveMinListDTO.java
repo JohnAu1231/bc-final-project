@@ -1,7 +1,6 @@
 package com.bootcamp.bc_yahoo_finance.dto.reqDto;
 
 import java.util.List;
-import com.bootcamp.bc_yahoo_finance.entity.YahooStockEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

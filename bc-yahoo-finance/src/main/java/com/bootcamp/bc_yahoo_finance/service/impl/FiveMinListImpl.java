@@ -1,23 +1,18 @@
 package com.bootcamp.bc_yahoo_finance.service.impl;
 
-import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.bootcamp.bc_yahoo_finance.dto.reqDto.FiveMinListDTO;
 import com.bootcamp.bc_yahoo_finance.dto.reqDto.YahooStockDTO;
-import com.bootcamp.bc_yahoo_finance.entity.FiveMinListEntity;
 import com.bootcamp.bc_yahoo_finance.entity.YahooStockEntity;
 import com.bootcamp.bc_yahoo_finance.exception.RedisBuildingException;
 import com.bootcamp.bc_yahoo_finance.infra.RedisHelper;
-import com.bootcamp.bc_yahoo_finance.infra.TimeStampConverter;
 import com.bootcamp.bc_yahoo_finance.mapper.YahooStockEntityMapper;
 import com.bootcamp.bc_yahoo_finance.repository.YahooStockRepository;
 import com.bootcamp.bc_yahoo_finance.service.FiveMinListService;

@@ -2,7 +2,6 @@ package com.bootcamp.bc_yahoo_finance.infra;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.TimeZone;

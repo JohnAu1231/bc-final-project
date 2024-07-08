@@ -1,6 +1,5 @@
 package com.bootcamp.bc_yahoo_finance.dto.respDto;
 
-import java.sql.Timestamp;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
