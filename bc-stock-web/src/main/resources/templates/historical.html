@@ -363,7 +363,7 @@ async function addSymbol() {
         
         // Refresh chart with updated symbols
         historyChart();
-        setUpSMAbutton();
+        
         
     } catch (error) {
         console.error('Error adding symbol:', error);
@@ -534,45 +534,11 @@ async function historyChart(interval = '1d') {
         }
     });
 
-    setUpSMAbutton();
-
     } catch (error) {
         console.error('Error fetching data:', error);
     }
 }
 
-// Add event listeners for SMA buttons
-function setUpSMAbutton() {
-    document.getElementById('sma10DaysButton').addEventListener('click', () => {
-        const isActive = smaState['10'];
-        activeSMA('10');
-        toggleActiveButton('sma10DaysButton', isActive);
-    });
-
-    document.getElementById('sma20DaysButton').addEventListener('click', () => {
-        const isActive = smaState['20'];
-        activeSMA('20');
-        toggleActiveButton('sma20DaysButton', isActive);
-    });
-
-    document.getElementById('sma50DaysButton').addEventListener('click', () => {
-        const isActive = smaState['50'];
-        activeSMA('50');
-        toggleActiveButton('sma50DaysButton', isActive);
-    });
-
-    document.getElementById('sma100DaysButton').addEventListener('click', () => {
-        const isActive = smaState['100'];
-        activeSMA('100');
-        toggleActiveButton('sma100DaysButton', isActive);
-    });
-
-    document.getElementById('sma200DaysButton').addEventListener('click', () => {
-        const isActive = smaState['200'];
-        activeSMA('200');
-        toggleActiveButton('sma200DaysButton', isActive);
-    });
-}
 
 function updateIntervalButtonColors() {
     // Daily Button
