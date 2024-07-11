@@ -53,21 +53,20 @@ public class StockController implements StockOperation{
   }
 
   @Override
-  public FiveMinListDTO getFiveMinListDTO(String symbol) throws RedisBuildingException {
-    return fiveMinListService.getFiveMinData(symbol);
+  public FiveMinListDTO getFiveMinListDTOToday(String symbol){
+    return fiveMinListService.getFiveMinDataToday(symbol);
+  }
+
+  @Override
+  public FiveMinListDTO getFiveMinListDTOAllTime(String symbol)  {
+    return fiveMinListService.getFiveMinDataAllTime(symbol);
   }
 
   @Override
    public FiveMinListDTO getYahooStockHistoryBySymbol(String symbol) {
-    ExYahooHistory exYahooHistory = yahooHistoryService.getYahooStockHistoryBySymbol(symbol);
-    return yahooStockHistoryMapper.mapToStockDayPriceDTO(exYahooHistory);
+    ApiResp<ExYahooHistory> exYahooHistory = yahooHistoryService.getYahooStockHistoryBySymbol(symbol);
+    return yahooStockHistoryMapper.mapToStockDayPriceDTO(exYahooHistory.getData().get(0));
    }
-
-  //  @Override
-  //  public FiveMinListDTO getYahooStockHistoryBySymbol(String symbol, String interval) {
-  //   ExYahooHistory exYahooHistory = yahooHistoryService.getYahooStockHistoryBySymbol(symbol, interval);
-  //   return yahooStockHistoryMapper.mapToStockDayPriceDTO(exYahooHistory);
-  //  }
 
    @Override
    public ApiResp<FiveMinListDTO> getYahooStockHistoryBySymbol(String symbol, String interval) {

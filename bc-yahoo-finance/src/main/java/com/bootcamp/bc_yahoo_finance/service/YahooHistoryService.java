@@ -7,22 +7,24 @@ import com.bootcamp.bc_yahoo_finance.entity.YahooStockEntity;
 import com.bootcamp.bc_yahoo_finance.infra.ApiResp;
 
 public interface YahooHistoryService {
-  
-  List<YahooStockEntity> getFromRedis(String key);
 
-  void setFromRedis(List<YahooStockEntity> entities, String symbol);
+      List<YahooStockEntity> getFromRedis(String key);
 
-  ExYahooHistory getYahooStockHistoryBySymbol(String symbol);
+      void setFromRedis(List<YahooStockEntity> entities, String symbol);
 
-  ExYahooHistory getYahooStockHistoryBySymbol(String symbol, String interval);
+      ApiResp<ExYahooHistory> getYahooStockHistoryBySymbol(String symbol);
 
-  ApiResp<ExYahooHistory> getYahooStockHistoryBySymbol(String symbol,
-      String period1, String period2, String interval);
+      ApiResp<ExYahooHistory> getYahooStockHistoryBySymbol(String symbol,
+                  String interval);
 
-void saveYahooHistory(String symbol, List<ExYahooAPI> exYahooAPIs);
+      ApiResp<ExYahooHistory> getYahooStockHistoryBySymbol(String symbol,
+                  String period1, String period2, String interval);
 
-ApiResp<YahooStockEntity> getAndSaveYahooHistroy(String symbol, String interval);
+      void saveYahooHistory(String symbol, List<ExYahooAPI> exYahooAPIs);
 
-ApiResp<YahooStockEntity> saveFromYahooAPI(String symbol,
-      String interval, String start);
+      ApiResp<YahooStockEntity> getAndSaveYahooHistroy(String symbol,
+                  String interval);
+
+      ApiResp<YahooStockEntity> saveFromYahooAPI(String symbol, String interval,
+                  String start);
 }

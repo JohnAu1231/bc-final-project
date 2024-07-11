@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.hibernate.JDBCException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -125,18 +126,16 @@ public class YahooHistoryServiceImpl implements YahooHistoryService {
 
 
   @Override
-  public ExYahooHistory getYahooStockHistoryBySymbol(String symbol,
+  public ApiResp<ExYahooHistory> getYahooStockHistoryBySymbol(String symbol,
       String interval) {
     return this
-        .getYahooStockHistoryBySymbol(symbol, "1", "3000000000", interval)
-        .getData().get(0);
+        .getYahooStockHistoryBySymbol(symbol, "1", "3000000000", interval);
   }
 
   @Override
-  public ExYahooHistory getYahooStockHistoryBySymbol(String symbol) {
+  public ApiResp<ExYahooHistory> getYahooStockHistoryBySymbol(String symbol) {
 
-    return this.getYahooStockHistoryBySymbol(symbol, "1", "3000000000", "1d")
-        .getData().get(0);
+    return this.getYahooStockHistoryBySymbol(symbol, "1", "3000000000", "1d");
   }
 
   @Override
@@ -218,9 +217,13 @@ public class YahooHistoryServiceImpl implements YahooHistoryService {
     }
 
     // get the last data from database
-    Optional<Long> maxMarketTime =
+    Optional<Long> maxMarketTime = Optional.empty();
+    try {
+    maxMarketTime =
         yahooStockRepository.findMaxMarketTimeBySymbolAndDataType(symbol,
             "history".concat(interval));
+    } catch (JDBCException e) {
+    }
 
     // main logic
     if (maxMarketTime.isPresent()) {
@@ -250,15 +253,6 @@ public class YahooHistoryServiceImpl implements YahooHistoryService {
 
     return ApiResp.<YahooStockEntity>builder().ok().data(yahooStockEntities)
         .build();
-
   }
-
-  // @Override
-  // public void saveYahooAPI(String symbol) {
-  // ExYahooAPI stock = this.getYahooStockBySymbol(symbol);
-  // YahooStockEntity stockEntity = exYahooAPIMapper.mapToYahooFinanceEntity(stock);
-  // log.debug(stockEntity.getRegularMarketUnix().toString());
-  // yahooStockRepository.save(stockEntity);
-  // }
 
 }

@@ -27,9 +27,9 @@ public interface MovingAverageOperation {
               mediaType = "application/json")}),
       @ApiResponse(responseCode = "500",
           content = {@Content(schema = @Schema())})})
-  @GetMapping(value = "/hourMA/{symbol}")
+  @GetMapping(value = "/hourMA/{symbol}/{period}")
   @ResponseStatus(value = HttpStatus.OK)
-   List<YahooStockDTO> getHourMovingAvergae(@PathVariable String symbol);
+   List<YahooStockDTO> getHourMovingAvergae(@PathVariable String symbol, @PathVariable int period);
 
    
   @GetMapping(value = "/dayMA/{symbol}/{period}")

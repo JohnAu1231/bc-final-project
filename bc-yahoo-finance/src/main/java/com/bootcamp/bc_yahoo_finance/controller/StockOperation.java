@@ -16,7 +16,10 @@ public interface StockOperation {
   String getSystemDate(@PathVariable String symbol);
 
   @GetMapping(value = "/five/{symbol}")
-  FiveMinListDTO getFiveMinListDTO(@PathVariable String symbol) throws RedisBuildingException;
+  FiveMinListDTO getFiveMinListDTOToday(@PathVariable String symbol);
+
+  @GetMapping(value = "/five/all/{symbol}")
+  FiveMinListDTO getFiveMinListDTOAllTime(@PathVariable String symbol);
 
   @GetMapping(value = "/history/{symbol}")
   FiveMinListDTO getYahooStockHistoryBySymbol(@PathVariable String symbol);

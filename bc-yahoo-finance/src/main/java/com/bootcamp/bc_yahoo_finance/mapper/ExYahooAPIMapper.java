@@ -1,12 +1,9 @@
 package com.bootcamp.bc_yahoo_finance.mapper;
 
 import java.sql.Timestamp;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.TimeZone;
 import org.springframework.stereotype.Component;
 import com.bootcamp.bc_yahoo_finance.dto.reqDto.YahooStockDTO;
 import com.bootcamp.bc_yahoo_finance.dto.respDto.ExYahooAPI;
@@ -25,16 +22,14 @@ public class ExYahooAPIMapper {
       return null;
     } else {
       ExYahooStock stock = ls.get(0);
-      Long now = stock.getRegularMarketTime();
-    
-      YahooStockEntity yahooFinanceEntity =
-          YahooStockEntity.builder().marketPrice(stock.getMarketPrice())
-              .regularMarketUnix(stock.getRegularMarketTime())
-              .ask(stock.getAsk())
-              .askSize(stock.getAskSize()).bid(stock.getBid())
-              .bidSize(stock.getBidSize()).symbol(stock.getSymbol())
-              .regularMarketChangePercent(stock.getRegularMarketChangePercent())
-              .build();
+
+      YahooStockEntity yahooFinanceEntity = YahooStockEntity.builder()
+          .marketPrice(stock.getMarketPrice())
+          .regularMarketUnix(stock.getRegularMarketTime()).ask(stock.getAsk())
+          .askSize(stock.getAskSize()).bid(stock.getBid())
+          .bidSize(stock.getBidSize()).symbol(stock.getSymbol())
+          .regularMarketChangePercent(stock.getRegularMarketChangePercent())
+          .build();
       return yahooFinanceEntity;
     }
   }
@@ -51,12 +46,12 @@ public class ExYahooAPIMapper {
       ExYahooStock stock = ls.get(0);
       Timestamp timestamp =
           new Timestamp(stock.getRegularMarketTime().longValue() * 1000L);
-      LocalDateTime time = timestamp.toInstant().atZone(ZoneId.systemDefault())
+      LocalDateTime time = timestamp.toInstant().atZone(ZoneId.of("Asia/Hong_Kong"))
           .toLocalDateTime();
       YahooStockDTO yahooStockDTO = YahooStockDTO.builder()
           .regularMarketPrice(stock.getMarketPrice()).marketTime(time)
-          .regularMarketUnix(stock.getRegularMarketTime())
-          .ask(stock.getAsk()).askSize(stock.getAskSize()).bid(stock.getBid())
+          .regularMarketUnix(stock.getRegularMarketTime()).ask(stock.getAsk())
+          .askSize(stock.getAskSize()).bid(stock.getBid())
           .bidSize(stock.getBidSize()).symbol(stock.getSymbol())
           .regularMarketChangePercent(stock.getRegularMarketChangePercent())
           .build();
@@ -74,14 +69,13 @@ public class ExYahooAPIMapper {
       return null;
     } else {
       ExYahooStock stock = ls.get(0);
- 
+
       YahooStockEntity yahooStockEntity = YahooStockEntity.builder()
-          .regularMarketUnix(stock.getRegularMarketTime())
-          .ask(stock.getAsk()).askSize(stock.getAskSize()).bid(stock.getBid())
+          .regularMarketUnix(stock.getRegularMarketTime()).ask(stock.getAsk())
+          .askSize(stock.getAskSize()).bid(stock.getBid())
           .bidSize(stock.getBidSize()).symbol(stock.getSymbol())
           .regularMarketChangePercent(stock.getRegularMarketChangePercent())
-          .dataType("history")
-          .build();
+          .dataType("history").build();
       return yahooStockEntity;
     }
   }
