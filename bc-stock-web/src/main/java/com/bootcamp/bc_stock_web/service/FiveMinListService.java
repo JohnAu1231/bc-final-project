@@ -5,7 +5,7 @@ import com.bootcamp.bc_stock_web.infra.ApiResp;
 
 public interface FiveMinListService {
   
-  ExFiveMinList getFiveMinList(String symbol);
+  ExFiveMinList getFiveMinListAllTime(String symbol);
 
   ApiResp<ExFiveMinList> getHistoryList(String symbol, String interval);
 }

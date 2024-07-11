@@ -8,16 +8,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import com.bootcamp.bc_stock_web.dto.reqdto.YahooStockDTO;
-import com.bootcamp.bc_stock_web.dto.respdto.ExFiveMinList;
 import com.bootcamp.bc_stock_web.infra.Scheme;
 import com.bootcamp.bc_stock_web.service.MovingAverageService;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class MovingAverageServiceImpl implements MovingAverageService{
-  
-    @Value(value = "${api.json-place-holder.domain}")
+public class MovingAverageServiceImpl implements MovingAverageService {
+
+  @Value(value = "${api.json-place-holder.domain}")
   private String domain;
 
   @Value(value = "${api.json-place-holder.endpoints.hour}")
@@ -26,11 +25,20 @@ public class MovingAverageServiceImpl implements MovingAverageService{
   @Autowired
   private RestTemplate restTemplate;
 
-    @Override
-  public List<YahooStockDTO> getHourAveragePoint(String symbol) {
-    String url = UriComponentsBuilder.newInstance().scheme(Scheme.HTTP.lowercase())
-        .host(this.domain).path(endpoint)
-        .path("/").path(symbol).build(false).toUriString();
+  @Override
+  public List<YahooStockDTO> getHourAveragePoint(String symbol, String period) {
+    try {
+      Integer.parseInt(period);
+    } catch (NumberFormatException e) {
+      throw new NumberFormatException(
+          "The period is not Integer in MovingAverageService.getHourAveragePoint method");
+    }
+
+
+    String url =
+        UriComponentsBuilder.newInstance().scheme(Scheme.HTTP.lowercase())
+            .host(this.domain).path(endpoint).path("/").path(symbol).path("/")
+            .path(period).build(false).toUriString();
 
     log.info("url : " + url);
 
@@ -42,15 +50,18 @@ public class MovingAverageServiceImpl implements MovingAverageService{
 
   @Override
   public List<YahooStockDTO> getDayAveragePoint(String symbol, String period) {
-    
-      int number = Integer.parseInt(period);
-      
-    String url = UriComponentsBuilder.newInstance().scheme(Scheme.HTTP.lowercase())
-        .host(this.domain).path(endpoint)
-        .path("/")
-        .path(symbol)
-        .path("/")
-        .path(period).build(false).toUriString();
+
+    try {
+      Integer.parseInt(period);
+    } catch (NumberFormatException e) {
+      throw new NumberFormatException(
+          "The period is not Integer in MovingAverageService.getDayAveragePoint method");
+    }
+
+    String url =
+        UriComponentsBuilder.newInstance().scheme(Scheme.HTTP.lowercase())
+            .host(this.domain).path(endpoint).path("/").path(symbol).path("/")
+            .path(period).build(false).toUriString();
 
     log.info("url : " + url);
 

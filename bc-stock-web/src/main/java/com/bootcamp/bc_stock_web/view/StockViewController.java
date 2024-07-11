@@ -15,7 +15,7 @@ public class StockViewController {
 
   @GetMapping(value = "/stock/{symbol}")
   public String stock(Model model, @PathVariable String symbol) {
-    model.addAttribute("message", fiveMinListOperation.getFiveMinList(symbol) );
+    model.addAttribute("message", fiveMinListOperation.getFiveMinListAllTime(symbol) );
     return "mainpage";
   }
 }

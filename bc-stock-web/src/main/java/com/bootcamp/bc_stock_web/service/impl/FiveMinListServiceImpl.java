@@ -1,25 +1,21 @@
   package com.bootcamp.bc_stock_web.service.impl;
 
-  import java.util.Collections;
   import java.util.List;
-  import org.apache.tomcat.util.openssl.pem_password_cb;
-  import org.springframework.beans.factory.annotation.Autowired;
-  import org.springframework.beans.factory.annotation.Value;
-  import org.springframework.core.ParameterizedTypeReference;
-  import org.springframework.http.HttpMethod;
-  import org.springframework.http.HttpStatus;
-  import org.springframework.http.ResponseEntity;
-  import org.springframework.stereotype.Service;
-  import org.springframework.web.client.RestClientException;
-  import org.springframework.web.client.RestTemplate;
-  import org.springframework.web.util.UriComponents;
-  import org.springframework.web.util.UriComponentsBuilder;
-  import com.bootcamp.bc_stock_web.dto.respdto.ExFiveMinList;
-  import com.bootcamp.bc_stock_web.infra.ApiResp;
-  import com.bootcamp.bc_stock_web.infra.ErrorCode;
-  import com.bootcamp.bc_stock_web.infra.Scheme;
-  import com.bootcamp.bc_stock_web.service.FiveMinListService;
-  import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+import com.bootcamp.bc_stock_web.dto.respdto.ExFiveMinList;
+import com.bootcamp.bc_stock_web.infra.ApiResp;
+import com.bootcamp.bc_stock_web.infra.ErrorCode;
+import com.bootcamp.bc_stock_web.infra.Scheme;
+import com.bootcamp.bc_stock_web.service.FiveMinListService;
+import lombok.extern.slf4j.Slf4j;
 
   @Slf4j
   @Service
@@ -39,9 +35,10 @@
 
 
     @Override
-    public ExFiveMinList getFiveMinList(String symbol) {
+    public ExFiveMinList getFiveMinListAllTime(String symbol) {
       String url = UriComponentsBuilder.newInstance().scheme(Scheme.HTTP.lowercase())
           .host(this.domain).path(stockEndpoint)
+          .path("/all")
           .path("/").path(symbol).build(false).toUriString();
 
       log.info("url : " + url);
@@ -95,15 +92,5 @@
 
 
 }
-
-
-    //   ExFiveMinList response =
-    //       restTemplate.getForObject(url, ApiResp<ExFiveMinList>.class);
-
-    //   if (response == null) {
-    //     return ApiResp.<ExFiveMinList>builder().error(ErrorCode.NPE).build();
-    //   }
-    //   return ApiResp.<ExFiveMinList>builder().ok().data(List.of(response)).build();
-    // }
 
 

@@ -7,9 +7,9 @@ import com.bootcamp.bc_stock_web.model.StockPrice;
 
 public interface MovingAverageOperation {
   
-   @GetMapping(value = "/hourMA/{symbol}")
- List<StockPrice> getHourMovingAverage(@PathVariable String symbol);
+   @GetMapping(value = "/hourMA/{symbol}/{period}")
+ List<StockPrice> getHourMovingAverage(@PathVariable String symbol, @PathVariable String period);
   
- @GetMapping(value = "/dayMA/{symbol}{period}")
+ @GetMapping(value = "/dayMA/{symbol}/{period}")
  List<StockPrice> getDayMovingAverage(@PathVariable String symbol,@PathVariable String period);
 }

@@ -4,6 +4,6 @@ import com.bootcamp.bc_stock_web.dto.respdto.ExFiveMinList;
 
 public interface FiveMinListOperation {
 
-  ExFiveMinList getFiveMinList(String symbol);
+  ExFiveMinList getFiveMinListAllTime(String symbol);
   
 }

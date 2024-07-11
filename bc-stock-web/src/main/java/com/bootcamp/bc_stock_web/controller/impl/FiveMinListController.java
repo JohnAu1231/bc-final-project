@@ -12,7 +12,7 @@ public class FiveMinListController implements FiveMinListOperation{
   @Autowired
   private FiveMinListService fiveMinListService;
 
-  public ExFiveMinList getFiveMinList(String symbol) {
-    return fiveMinListService.getFiveMinList(symbol);
+  public ExFiveMinList getFiveMinListAllTime(String symbol) {
+    return fiveMinListService.getFiveMinListAllTime(symbol);
   }
 }
